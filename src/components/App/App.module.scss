@@ -1,0 +1,40 @@
+.App {
+  display: flex;
+  flex-direction: column;
+  max-width: 960px;
+  background-color: #f3f7fa;
+
+  &_main {
+    display: flex;
+    gap: 20px;
+  }
+
+  @media all and (max-width: 780px) {
+    width: auto;
+    max-width: 420px;
+
+    &_main  {
+      flex-direction: column;
+      align-items: center;
+    }
+  }
+}
+
+.Content_wrapper {
+  width: 502px;
+  @media all and (max-width: 780px) {
+    width: 100%;
+  }
+}
+
+.spin {
+  display: flex;
+  justify-content: center;
+  margin-top: 15px;
+}
+
+.nosearch {
+  display: inline-block;
+  margin: 20px 0 0 50px;
+  color: red;
+}

@@ -1,33 +1,34 @@
-html,
-body {
-  margin: 0;
-  padding: 0;
+@font-face {
+  font-family: 'OpenSans';
+  src: url(./assets/fonts/OpenSans.ttf) format('ttf');
+  font-weight: 400;
 }
 
-button {
-  margin: 0;
+*,
+*::after,
+*::before {
   padding: 0;
-  border: 0;
-  background: none;
-  font-size: 100%;
-  vertical-align: baseline;
-  font-family: inherit;
-  font-weight: inherit;
-  color: inherit;
-  -webkit-appearance: none;
-  appearance: none;
+  box-sizing: border-box;
+  color: #4a4a4a;
+}
+
+body {
+  background-color: #f3f7fa;
+  font-family: OpenSans, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell',
+    'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-button::-moz-focus-inner {
-  border: none;
+#root {
+  display: flex;
+  justify-content: center;
 }
 
-:focus {
-  outline: 0;
+.ant-checkbox-group {
+  flex-direction: column;
 }
-
-.hidden {
-  display: none;
+.ant-checkbox-wrapper {
+  padding-left: 25px;
+  margin: 10px 30px 10px 8px;
 }

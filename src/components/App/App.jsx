@@ -1,104 +1,62 @@
-import React, { useState } from 'react';
+import React, { useEffect, useMemo } from 'react';
+import { useSelector } from 'react-redux';
+import { Spin } from 'antd';
 
-import './App.css';
-import TaskList from '../TaskList';
-import Footer from '../Footer';
-import NewTaskForm from '../NewTaskForm';
+import Header from '../Header/Header';
+import Transfer from '../Transfer/Transfer';
+import Filter from '../Filter/Filter';
+import TicketsList from '../TicketsList/TicketsList';
+import TicketsShowMore from '../TicketsShowMore/TicketsShowMore';
+import { useActions } from '../../store/hooks/useAction';
+import { getFiltredTickets, transfersSort } from '../../Utils/ticketsfilter';
+import AviasalesApi from '../../service/aviasalesAPI';
 
-function counter() {
-  let maxId = 1;
-  return () => maxId++;
-}
+import AppStyles from './App.module.scss';
 
-const maxId = counter();
+const AviaAPI = new AviasalesApi();
 
-const App = () => {
-  const [todoData, setTodoData] = useState([]);
-  const [filter, setOnFilter] = useState('all');
+function App() {
+  const { ticketsData, loading, error } = useSelector((state) => state.ticketsData);
+  const { checkedList } = useSelector((state) => state.transfersReducer);
+  const { count } = useSelector((state) => state.count);
+  const { sort } = useSelector((state) => state.sort);
+  const { asyncSetTickets } = useActions();
 
-  const createTask = (label, min = 0, sec = 0) => {
-    return {
-      label,
-      min: min,
-      sec: sec,
-      completed: false,
-      editing: false,
-      time: new Date(),
-      id: maxId(),
-    };
-  };
+  const transfers = transfersSort(checkedList);
 
-  const addTask = (label, min, sec) => {
-    setTodoData((todoData) => {
-      return [createTask(label, min, sec), ...todoData];
+  useEffect(() => {
+    AviaAPI.getSearchId().then((data) => {
+      asyncSetTickets(data.searchId);
     });
-  };
+  }, []);
 
-  const updateTask = (id, min, sec) => {
-    setTodoData((todoData) => {
-      const index = todoData.findIndex((el) => {
-        return el.id === id;
-      });
+  const filterTicketsDataOne = useMemo(() => getFiltredTickets(ticketsData, transfers, sort), [transfers.length, sort]);
 
-      const oldItem = todoData[index];
-      if (typeof oldItem === 'undefined') return todoData;
-      const newItem = { ...oldItem, min: min, sec: sec };
-      const newArray = [...todoData.slice(0, index), newItem, ...todoData.slice(index + 1)];
-
-      return newArray;
-    });
-  };
-
-  const deleteTask = (id) => {
-    setTodoData((todoData) => {
-      const idx = todoData.findIndex((el) => el.id === id);
-      return [...todoData.slice(0, idx), ...todoData.slice(idx + 1)];
-    });
-  };
-
-  const onToggleDone = (id) => {
-    setTodoData((todoData) => {
-      const idx = todoData.findIndex((el) => el.id === id);
-      const oldTask = todoData[idx];
-      const newTask = { ...oldTask, completed: !oldTask.completed };
-      return [...todoData.slice(0, idx), newTask, ...todoData.slice(idx + 1)];
-    });
-  };
-
-  const onFilter = (filter) => {
-    setOnFilter(filter);
-  };
-
-  const onClear = () => {
-    setTodoData((todoData) => {
-      return todoData.filter((el) => !el.completed);
-    });
-  };
-
-  const getRender = () => {
-    switch (filter) {
-      case 'all':
-        return todoData;
-      case 'active':
-        return todoData.filter((el) => !el.completed);
-      case 'completed':
-        return todoData.filter((el) => el.completed);
-      default:
-        return todoData;
-    }
-  };
-
-  const leftCount = todoData.filter((el) => !el.completed).length;
+  const filterTicketsData = filterTicketsDataOne.slice(0, count);
 
   return (
-    <section className="todoapp">
-      <NewTaskForm addTask={addTask} />
-      <section className="main">
-        <TaskList todos={getRender()} onDeleted={deleteTask} onToggleDone={onToggleDone} onUpdate={updateTask} />
-        <Footer leftCount={leftCount} filter={filter} onFilter={onFilter} onClear={onClear} />
-      </section>
-    </section>
+    <div className={AppStyles.App}>
+      <Header></Header>
+      <main className={AppStyles.App_main}>
+        <Transfer></Transfer>
+        <div className={AppStyles.Content_wrapper}>
+          <Filter></Filter>
+          {!error ? (
+            <div>
+              {loading && filterTicketsData.length ? <Spin className={AppStyles.spin} size="large" /> : null}
+              {!filterTicketsData.length && !error ? (
+                <span className={AppStyles.nosearch}>Рейсы, подходящие под заданные фильтры, не найдены</span>
+              ) : null}
+              <TicketsList filterTicketsData={filterTicketsData} />
+              {filterTicketsData.length ? <TicketsShowMore /> : null}
+            </div>
+          ) : (
+            <span className={AppStyles.nosearch}>ПРОИЗОШЛА ОШИБКА</span>
+          )}
+        </div>
+      </main>
+    </div>
   );
-};
+}
 
 export default App;
