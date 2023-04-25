@@ -4,7 +4,7 @@ export const requestTickets = (dispatch, id) => {
     .then((tickets) => {
       if (tickets.status === 500) {
         requestTickets(dispatch, id);
-      } else if (tickets.res === 'ok') {
+      } else if (tickets.ok === true) {
         return tickets.json();
       } else {
         dispatch({ type: 'FETH_TIKETS_ERROR', payload: true });
